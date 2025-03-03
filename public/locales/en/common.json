@@ -1,0 +1,244 @@
+{
+  "seo": {
+    "homeTitle": "Dutch Seed Supply | Premium Cannabis Seeds from the Netherlands",
+    "homeDescription": "Discover premium cannabis seeds with authentic Dutch genetics. High-quality feminized, autoflowering, and CBD-rich varieties for collectors and growers.",
+    "homeKeywords": "cannabis seeds, marijuana seeds, weed seeds, Dutch genetics, feminized seeds, autoflower seeds, CBD seeds, Amsterdam seeds",
+    "productsTitle": "Shop CBD Products | SenseBy CBD",
+    "productsDescription": "Browse our selection of premium CBD products including oils, topicals, edibles, and more. Lab-tested, high-quality CBD for wellness and relief.",
+    "productsKeywords": "buy CBD, CBD shop, CBD products, CBD oil, CBD cream, CBD edibles, CBD capsules",
+    "productTitle": "{productName} | SenseBy CBD",
+    "productDescription": "Shop {productName} from SenseBy CBD. Premium quality, lab-tested CBD product for natural relief and wellness.",
+    "categoryTitle": "{categoryName} | SenseBy CBD Products",
+    "categoryDescription": "Browse our selection of premium {categoryName} products. High-quality, lab-tested CBD for natural relief and wellness.",
+    "blogTitle": "CBD Blog | SenseBy CBD",
+    "blogDescription": "Read the latest articles about CBD benefits, research, and product guides. Stay informed with SenseBy CBD's educational blog.",
+    "blogKeywords": "CBD blog, CBD articles, CBD research, CBD benefits, CBD guides",
+    "blogPostTitle": "{postTitle} | SenseBy CBD Blog",
+    "blogPostDescription": "Read about {postTitle} in our CBD educational blog. Learn more about CBD benefits, research, and product information.",
+    "blogCategoryTitle": "{categoryName} Articles | SenseBy CBD Blog",
+    "blogCategoryDescription": "Browse our collection of articles about {categoryName}. Educational content about CBD benefits, research, and product information."
+  },
+  "navigation": {
+    "home": "Home",
+    "products": "Cannabis Seeds",
+    "about": "About Us",
+    "blog": "Growing Guide",
+    "contact": "Contact",
+    "account": "My Account",
+    "cart": "Cart"
+  },
+  "hero": {
+    "title": "Premium Cannabis Seeds from the Netherlands",
+    "subtitle": "High-quality cannabis seeds with authentic Dutch genetics for collectors and growers",
+    "cta": "Explore Seeds"
+  },
+  "categories": {
+    "title": "Our Cannabis Seeds",
+    "feminized": "Feminized Seeds",
+    "autoflowering": "Autoflowering Seeds",
+    "regular": "Regular Seeds",
+    "cbd": "CBD-rich Seeds",
+    "mix": "Mixed Packs"
+  },
+  "benefits": {
+    "title": "Benefits of Our Cannabis Seeds",
+    "genetics": "Premium Genetics",
+    "geneticsDesc": "Carefully selected strains with superior Dutch genetics",
+    "germination": "High Germination Rate",
+    "germinationDesc": "Our seeds have a 95%+ germination success rate",
+    "selection": "Diverse Selection",
+    "selectionDesc": "From classic Dutch strains to modern hybrids",
+    "support": "Expert Support",
+    "supportDesc": "Growing advice from experienced cultivators"
+  },
+  "testimonials": {
+    "title": "What Our Customers Say",
+    "readMore": "Read More",
+    "badge": "Grower Experiences",
+    "subtitle": "Hear from our satisfied customers about their experiences with our premium cannabis seeds",
+    "verifiedPurchases": "Verified Purchases",
+    "averageRating": "4.9/5 Average Rating",
+    "happyCustomers": "10,000+ Happy Collectors"
+  },
+  "newsletter": {
+    "title": "Stay Updated",
+    "subtitle": "Subscribe to our newsletter for the latest cannabis strains and growing tips",
+    "placeholder": "Your email address",
+    "button": "Subscribe",
+    "success": "Thank you for subscribing!",
+    "error": "Something went wrong. Please try again."
+  },
+  "footer": {
+    "company": "Company",
+    "about": "About Us",
+    "blog": "Blog",
+    "careers": "Careers",
+    "contact": "Contact Us",
+    "account": "My Account",
+    "help": "Help",
+    "faq": "FAQ",
+    "shipping": "Shipping",
+    "returns": "Returns",
+    "terms": "Terms & Conditions",
+    "privacy": "Privacy Policy",
+    "shop": "Shop",
+    "products": "All Seeds",
+    "categories": "Categories",
+    "cart": "Cart",
+    "checkout": "Checkout",
+    "copyright": "© 2025 Dutch Seed Supply. All rights reserved."
+  },
+  "products": {
+    "title": "All Cannabis Seeds",
+    "filter": "Filter",
+    "sort": "Sort",
+    "search": "Search seeds...",
+    "noResults": "No seeds found. Try adjusting your filters.",
+    "price": "Price",
+    "category": "Category",
+    "thcLevel": "THC Level",
+    "cbdLevel": "CBD Level",
+    "floweringTime": "Flowering Time",
+    "sortOptions": {
+      "newest": "Newest",
+      "priceAsc": "Price: Low to High",
+      "priceDesc": "Price: High to Low",
+      "popularityDesc": "Most Popular"
+    },
+    "filters": {
+      "apply": "Apply Filters",
+      "clear": "Clear Filters",
+      "close": "Close"
+    },
+    "priceRange": {
+      "min": "Min",
+      "max": "Max"
+    }
+  },
+  "product": {
+    "addToCart": "Add to Cart",
+    "addedToCart": "Added to Cart",
+    "viewCart": "View Cart",
+    "quantity": "Quantity",
+    "inStock": "In Stock",
+    "lowStock": "Low Stock",
+    "outOfStock": "Out of Stock",
+    "description": "Description",
+    "specifications": "Specifications",
+    "reviews": "Reviews",
+    "relatedProducts": "Similar Strains",
+    "genetics": "Genetics",
+    "thcContent": "THC Content",
+    "cbdContent": "CBD Content",
+    "floweringTime": "Flowering Time",
+    "height": "Plant Height",
+    "yield": "Expected Yield",
+    "effect": "Effect",
+    "flavor": "Flavor Profile",
+    "growingDifficulty": "Growing Difficulty",
+    "indoorOutdoor": "Indoor/Outdoor",
+    "seedCount": "Seeds Per Pack",
+    "writeReview": "Write a Review",
+    "submitReview": "Submit Review",
+    "reviewPlaceholder": "Share your experience with these seeds...",
+    "rating": "Rating",
+    "noReviews": "No reviews yet. Be the first to review this strain!",
+    "loginToReview": "Please log in to write a review",
+    "thankYouReview": "Thank you for your review!",
+    "productDetails": "Strain Details"
+  },
+  "cart": {
+    "title": "Your Cart",
+    "empty": "Your cart is empty",
+    "continueShopping": "Continue Shopping",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "total": "Total",
+    "checkout": "Checkout",
+    "remove": "Remove",
+    "update": "Update"
+  },
+  "blog": {
+    "title": "Blog",
+    "readMore": "Read More",
+    "by": "By",
+    "categories": "Categories",
+    "tags": "Tags",
+    "recentPosts": "Recent Posts",
+    "relatedPosts": "Related Posts",
+    "noPosts": "No blog posts found.",
+    "comments": "Comments",
+    "leaveComment": "Leave a Comment",
+    "yourName": "Your Name",
+    "yourEmail": "Your Email",
+    "commentPlaceholder": "Your comment...",
+    "submitComment": "Submit Comment",
+    "loginToComment": "Please log in to leave a comment",
+    "thankYouComment": "Thank you for your comment! It will be visible after approval.",
+    "noComments": "No comments yet. Be the first to comment!",
+    "search": "Search blog...",
+    "searchResults": "Search Results",
+    "noSearchResults": "No results found for your search.",
+    "backToBlog": "Back to Blog",
+    "publishedOn": "Published on",
+    "share": "Share"
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Find answers to common questions about cannabis seeds, germination, and shipping",
+    "badge": "Grower's Guide",
+    "searchPlaceholder": "Search for answers...",
+    "noResults": "No questions found matching your search.",
+    "categories": {
+      "all": "All Questions",
+      "general": "General",
+      "germination": "Germination & Growing",
+      "strains": "Strain Information",
+      "shipping": "Shipping & Delivery"
+    },
+    "questions": {
+      "feminizedSeeds": {
+        "question": "What are feminized seeds?",
+        "answer": "Feminized cannabis seeds are genetically engineered to produce only female plants. This is beneficial for growers as female plants produce the cannabinoid-rich flowers (buds) that most collectors and growers desire. Using feminized seeds eliminates the need to identify and remove male plants."
+      },
+      "autofloweringSeeds": {
+        "question": "What are autoflowering seeds?",
+        "answer": "Autoflowering seeds produce plants that automatically transition from vegetative growth to flowering based on age, rather than light cycle changes. These plants typically grow smaller, mature faster (8-10 weeks from seed to harvest), and are more resilient to environmental stressors, making them ideal for beginners and growers in challenging climates."
+      },
+      "germination": {
+        "question": "What's the best way to germinate cannabis seeds?",
+        "answer": "The paper towel method is popular and effective: Place seeds between damp paper towels on a plate, cover with another plate to retain moisture, and keep in a warm, dark place (21-25°C). Check daily and keep towels moist. Seeds typically sprout in 1-5 days. Once taproots appear (2-3mm long), carefully transfer to your growing medium."
+      },
+      "storage": {
+        "question": "How should I store my cannabis seeds?",
+        "answer": "For long-term storage, keep seeds in an airtight container in a cool, dark place. Ideal conditions are 6-8°C with 20-30% relative humidity. A sealed container in the refrigerator (not freezer) works well. Avoid temperature fluctuations and exposure to light, which can trigger germination or reduce viability."
+      },
+      "strainDifferences": {
+        "question": "What's the difference between Indica, Sativa, and Hybrid strains?",
+        "answer": "Indica strains typically produce shorter, bushier plants with broader leaves and denser buds. Sativa strains generally grow taller with narrower leaves and more elongated buds. Hybrids combine characteristics from both parent types. Each strain offers unique growth patterns, flowering times, yields, and effects, allowing collectors to choose based on their preferences and growing conditions."
+      },
+      "cbdStrains": {
+        "question": "What are CBD-rich cannabis seeds?",
+        "answer": "CBD-rich cannabis seeds produce plants with higher levels of cannabidiol (CBD) and lower levels of THC. These strains have been specifically bred to enhance the CBD content while minimizing psychoactive effects, making them popular for those interested in the potential therapeutic benefits of cannabis without strong intoxication."
+      },
+      "shipping": {
+        "question": "How do you ship cannabis seeds?",
+        "answer": "We ship all seeds in discreet, crush-proof packaging with no indication of the contents. Orders are processed within 24-48 hours and typically arrive within 3-7 business days for European countries and 7-14 days for international orders. All shipments include tracking information sent to your email."
+      },
+      "international": {
+        "question": "Do you ship internationally?",
+        "answer": "Yes, we ship to most countries where it's legal to import cannabis seeds as a souvenir or collector's item. However, it's the customer's responsibility to check local laws regarding cannabis seeds. We cannot be held responsible for customs seizures, though our discreet packaging minimizes this risk."
+      },
+      "payment": {
+        "question": "What payment methods do you accept?",
+        "answer": "We accept credit/debit cards, bank transfers, and various cryptocurrencies including Bitcoin, Ethereum, and Litecoin. Cryptocurrency payments offer an additional layer of privacy and often qualify for a 10% discount on your order."
+      }
+    },
+    "recommendedProducts": "Recommended seeds:",
+    "feminizedSeeds": "Premium Feminized Seeds",
+    "autofloweringSeeds": "Fast Autoflowering Seeds",
+    "stillHaveQuestions": "Still have questions?",
+    "supportText": "Our customer support team is here to help. Reach out to us and we'll get back to you as soon as possible.",
+    "contactSupport": "Contact Support"
+  }
+}
