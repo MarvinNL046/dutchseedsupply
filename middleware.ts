@@ -2,9 +2,8 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { updateSession } from './utils/supabase/middleware';
 
-// Always enable debug mode for now to bypass authentication checks
-// This will be removed once the admin panel is working correctly
-const DEBUG_MODE = true;
+// Only enable debug mode in development
+const DEBUG_MODE = process.env.NODE_ENV === 'development';
 
 /**
  * Middleware function for handling authentication and admin access

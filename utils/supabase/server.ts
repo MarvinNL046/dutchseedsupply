@@ -3,9 +3,8 @@ import { createServerClient } from '@supabase/ssr';
 import { redirect } from 'next/navigation';
 import logger from '../../lib/utils/logger';
 
-// Always enable debug mode for now to bypass authentication checks
-// This will be removed once the admin panel is working correctly
-const DEBUG_MODE = true;
+// Only enable debug mode in development
+const DEBUG_MODE = process.env.NODE_ENV === 'development';
 
 export async function createClient() {
   const cookieStore = cookies();
