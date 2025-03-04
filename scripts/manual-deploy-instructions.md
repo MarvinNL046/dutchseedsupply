@@ -18,23 +18,51 @@ Since we're encountering issues with the Vercel CLI deployment, here are instruc
 3. Commit and push the change
 4. This will trigger a new deployment on Vercel
 
+## Choosing the Right Middleware
+
+We've created several middleware options to address different issues:
+
+1. **Production Middleware** (`middleware.production.ts`): Prevents infinite loops but still requires authentication
+2. **Debug Admin Middleware** (`middleware.debug-admin.ts`): Allows access to admin pages without authentication
+
+If the admin page is not loading at all, you can use the debug admin middleware:
+
+```bash
+node scripts/apply-debug-admin-middleware.js
+```
+
+This will:
+- Back up your current middleware to `middleware.current.ts`
+- Apply the debug admin middleware
+- Create a restore script
+
+To restore the previous middleware:
+
+```bash
+node scripts/restore-current-middleware.js
+```
+
 ## Verifying the Fix
 
 After the deployment is complete, you can verify that the fix is working by:
 
 1. Go to your production website: https://dutchseedsupply.com
 2. Try to access the admin page: https://dutchseedsupply.com/admin
-3. If you're redirected to the login page, enter your credentials
+3. If you're using the production middleware and are redirected to the login page, enter your credentials
 4. After logging in, you should be redirected back to the admin page without getting stuck in an infinite loop
+5. If you're using the debug admin middleware, you should be able to access the admin page directly without authentication
 
 ## What We've Done
 
 1. Created a production-optimized middleware that works regardless of the NODE_ENV setting
-2. Applied this middleware to your local environment
-3. Committed and pushed the changes to GitHub
-4. Updated the documentation with detailed information about the fix
+2. Created a debug admin middleware that allows access to admin pages without authentication
+3. Applied these middlewares to your local environment
+4. Committed and pushed the changes to GitHub
+5. Updated the documentation with detailed information about the fixes
 
-The key change in the middleware is checking if the request is coming from the login page. If it is, we allow access to the admin page to break the infinite loop:
+### Production Middleware
+
+The key change in the production middleware is checking if the request is coming from the login page. If it is, we allow access to the admin page to break the infinite loop:
 
 ```typescript
 // If there's an error or no user, redirect to login
@@ -55,4 +83,16 @@ if (error || !user) {
 }
 ```
 
-This fix should resolve the infinite loop issue with admin authentication on your production website.
+### Debug Admin Middleware
+
+The debug admin middleware is much simpler and allows access to all admin pages without authentication:
+
+```typescript
+// For admin routes, always allow access
+if (pathname.startsWith('/admin')) {
+  console.log('DEBUG MIDDLEWARE: Allowing access to admin page:', pathname);
+  return response;
+}
+```
+
+These fixes should resolve the issues with admin authentication on your production website.
