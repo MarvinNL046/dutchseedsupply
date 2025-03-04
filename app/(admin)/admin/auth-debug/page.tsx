@@ -14,23 +14,23 @@ export default function AuthDebugPage() {
     async function checkAuth() {
       try {
         setLoading(true);
-        setAuthChecks([...authChecks, "Starting auth check"]);
+        setAuthChecks(prev => [...prev, "Starting auth check"]);
 
         // Get session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         if (sessionError) {
           setError(`Session error: ${sessionError.message}`);
-          setAuthChecks([...authChecks, `Session error: ${sessionError.message}`]);
+          setAuthChecks(prev => [...prev, `Session error: ${sessionError.message}`]);
           return;
         }
 
         if (!session) {
           setError("No session found. Please log in.");
-          setAuthChecks([...authChecks, "No session found"]);
+          setAuthChecks(prev => [...prev, "No session found"]);
           return;
         }
 
-        setAuthChecks([...authChecks, `Session found for user: ${session.user.email}`]);
+        setAuthChecks(prev => [...prev, `Session found for user: ${session.user.email}`]);
         setUser(session.user);
 
         // Check if user is admin
@@ -42,12 +42,12 @@ export default function AuthDebugPage() {
 
         if (userError) {
           setError(`User data error: ${userError.message}`);
-          setAuthChecks([...authChecks, `User data error: ${userError.message}`]);
+          setAuthChecks(prev => [...prev, `User data error: ${userError.message}`]);
           return;
         }
 
         setIsAdmin(userData?.is_admin || false);
-        setAuthChecks([...authChecks, `Admin status: ${userData?.is_admin ? "Yes" : "No"}`]);
+        setAuthChecks(prev => [...prev, `Admin status: ${userData?.is_admin ? "Yes" : "No"}`]);
 
         // Test is_admin function
         const { data: functionData, error: functionError } = await supabase
@@ -55,11 +55,11 @@ export default function AuthDebugPage() {
 
         if (functionError) {
           setError(`is_admin function error: ${functionError.message}`);
-          setAuthChecks([...authChecks, `is_admin function error: ${functionError.message}`]);
+          setAuthChecks(prev => [...prev, `is_admin function error: ${functionError.message}`]);
           return;
         }
 
-        setAuthChecks([...authChecks, `is_admin function result: ${functionData ? "Yes" : "No"}`]);
+        setAuthChecks(prev => [...prev, `is_admin function result: ${functionData ? "Yes" : "No"}`]);
 
         // Check RLS policies
         const { data: policiesData, error: policiesError } = await supabase
@@ -69,22 +69,22 @@ export default function AuthDebugPage() {
 
         if (policiesError) {
           setError(`RLS policy error: ${policiesError.message}`);
-          setAuthChecks([...authChecks, `RLS policy error: ${policiesError.message}`]);
+          setAuthChecks(prev => [...prev, `RLS policy error: ${policiesError.message}`]);
           return;
         }
 
-        setAuthChecks([...authChecks, "RLS policies check passed"]);
+        setAuthChecks(prev => [...prev, "RLS policies check passed"]);
 
       } catch (e: any) {
         setError(`Unexpected error: ${e.message}`);
-        setAuthChecks([...authChecks, `Unexpected error: ${e.message}`]);
+        setAuthChecks(prev => [...prev, `Unexpected error: ${e.message}`]);
       } finally {
         setLoading(false);
       }
     }
 
     checkAuth();
-  }, []);
+  }, []); // Empty dependency array since we're using functional updates
 
   return (
     <div className="container mx-auto p-4">
