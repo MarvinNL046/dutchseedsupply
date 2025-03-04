@@ -3,6 +3,9 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import path from 'path';
 
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 const execPromise = promisify(exec);
 
 export async function GET(request: NextRequest) {
