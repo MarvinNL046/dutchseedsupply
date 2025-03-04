@@ -19,9 +19,9 @@ const rl = readline.createInterface({
 });
 
 // Paths to SQL files
-const standardizeIsAdminFunctionPath = path.join(__dirname, '../supabase/standardize-is-admin-function.sql');
-const updateAllAdminPoliciesPath = path.join(__dirname, '../supabase/update-all-admin-policies.sql');
-const checkMissingRlsPath = path.join(__dirname, '../supabase/check-missing-rls.sql');
+const fixIsAdminFunctionPath = path.join(__dirname, '../supabase/fix-is-admin-function.sql');
+const fixAdminPoliciesPath = path.join(__dirname, '../supabase/fix-admin-policies.sql');
+const fixMissingRlsPath = path.join(__dirname, '../supabase/fix-missing-rls.sql');
 
 // Function to prompt for confirmation
 function confirm(message) {
@@ -58,10 +58,10 @@ async function main() {
   console.log('=== Supabase Admin Authentication Fix ===');
   console.log('This script will help you fix admin authentication issues in your Supabase database.');
   
-  // Step 1: Standardize is_admin function
+  // Step 1: Fix is_admin function
   const step1 = await executeSqlFile(
-    standardizeIsAdminFunctionPath,
-    'Step 1: Standardize is_admin function'
+    fixIsAdminFunctionPath,
+    'Step 1: Fix is_admin function'
   );
   
   if (!step1) {
@@ -70,10 +70,10 @@ async function main() {
     return;
   }
   
-  // Step 2: Update all admin policies
+  // Step 2: Fix admin policies
   const step2 = await executeSqlFile(
-    updateAllAdminPoliciesPath,
-    'Step 2: Update all admin policies'
+    fixAdminPoliciesPath,
+    'Step 2: Fix admin policies'
   );
   
   if (!step2) {
@@ -82,10 +82,10 @@ async function main() {
     return;
   }
   
-  // Step 3: Check for missing RLS
+  // Step 3: Fix missing RLS
   const step3 = await executeSqlFile(
-    checkMissingRlsPath,
-    'Step 3: Check for missing RLS'
+    fixMissingRlsPath,
+    'Step 3: Fix missing RLS'
   );
   
   if (!step3) {
