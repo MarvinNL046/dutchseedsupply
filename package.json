@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/fix-build-errors.js",
     "build": "node scripts/generate-tailwind-theme.js && next build",
     "postbuild": "next-sitemap && node scripts/apply-dutch-seed-supply-config.js",
     "start": "next start",

@@ -1,6 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Exclude backup directories from the build process
+  experimental: {
+    outputFileTracingExcludes: {
+      '*': [
+        'middleware/backup/**',
+        'supabase/backup/**',
+      ],
+    },
+  },
   // Configure dynamic routes for admin and API routes
   images: {
     remotePatterns: [
