@@ -3,9 +3,9 @@ import { createServerClient } from '@supabase/ssr';
 import { updateSession } from './utils/supabase/middleware';
 import { getAdminEmails } from './utils/admin-config';
 
-// DEBUG MODE - Only enabled in development environment
+// DEBUG MODE - Temporarily enabled in all environments
 // This will bypass all authentication checks and allow access to the admin panel
-const DEBUG_MODE = process.env.NODE_ENV === 'development';
+const DEBUG_MODE = true; // process.env.NODE_ENV === 'development';
 
 /**
  * Middleware function for handling authentication and admin access

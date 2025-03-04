@@ -4,9 +4,9 @@ import { redirect } from 'next/navigation';
 import logger from '../../lib/utils/logger';
 import { getAdminEmails } from '../admin-config';
 
-// DEBUG MODE - Only enabled in development environment
+// DEBUG MODE - Temporarily enabled in all environments
 // This will bypass all authentication checks and allow access to the admin panel
-const DEBUG_MODE = process.env.NODE_ENV === 'development';
+const DEBUG_MODE = true; // process.env.NODE_ENV === 'development';
 
 export async function createClient() {
   const cookieStore = cookies();
