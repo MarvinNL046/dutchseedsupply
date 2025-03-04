@@ -58,6 +58,16 @@ Backups of the original files were created in the backup directory:
 - backup/lib/admin-auth-app-router.ts
 - backup/app/(admin)/layout.tsx
 
+Note: The backup directory is now excluded from Git to prevent build errors.
+
+## Build Error Fixes
+
+The following build errors were fixed:
+
+1. Removed backup files from Git repository to prevent build errors related to missing components
+2. Added the backup directory to .gitignore to prevent future issues
+3. Fixed React Hook dependency warning in app/(admin)/admin/auth-debug/page.tsx by using functional updates for state
+
 ## Next Steps
 
 Once the admin panel is working correctly, the DEBUG_MODE should be disabled by setting it back to:
