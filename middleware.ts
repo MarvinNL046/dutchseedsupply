@@ -2,8 +2,8 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { updateSession } from './utils/supabase/middleware';
 
-// Only enable debug mode in development
-const DEBUG_MODE = process.env.NODE_ENV === 'development';
+// Use the ADMIN_DEBUG_MODE environment variable or fall back to development check
+const DEBUG_MODE = process.env.ADMIN_DEBUG_MODE === 'true' || process.env.NODE_ENV === 'development';
 
 /**
  * Middleware function for handling authentication and admin access

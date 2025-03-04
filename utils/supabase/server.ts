@@ -3,8 +3,8 @@ import { createServerClient } from '@supabase/ssr';
 import { redirect } from 'next/navigation';
 import logger from '../../lib/utils/logger';
 
-// Only enable debug mode in development
-const DEBUG_MODE = process.env.NODE_ENV === 'development';
+// Use the ADMIN_DEBUG_MODE environment variable or fall back to development check
+const DEBUG_MODE = process.env.ADMIN_DEBUG_MODE === 'true' || process.env.NODE_ENV === 'development';
 
 export async function createClient() {
   const cookieStore = cookies();

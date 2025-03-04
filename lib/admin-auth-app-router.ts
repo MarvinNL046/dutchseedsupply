@@ -15,15 +15,8 @@ try {
 }
 import { getAdminEmails } from '../utils/admin-config';
 
-// DEBUG MODE - Only enabled in development environment
-// This will bypass all authentication checks and allow access to the admin panel
-const DEBUG_MODE = process.env.NODE_ENV === 'development';
-
-// List of admin email addresses that should always have access
-const ADMIN_EMAILS = [
-  'marvinsmit1988@gmail.com',
-  // Add other admin emails here
-];
+// Use the ADMIN_DEBUG_MODE environment variable or fall back to development check
+const DEBUG_MODE = process.env.ADMIN_DEBUG_MODE === 'true' || process.env.NODE_ENV === 'development';
 
 /**
  * Server-side admin authentication check for App Router
@@ -34,7 +27,7 @@ const ADMIN_EMAILS = [
  * @returns An object with user, isAdmin, and isAdminByEmail properties
  */
 export async function checkAdminAuth() {
-  console.log('checkAdminAuth called');
+  console.log('checkAdminAuth called from lib/admin-auth-app-router.ts');
   try {
     // If debug mode is enabled, allow access to the admin panel
     if (DEBUG_MODE) {
@@ -44,7 +37,7 @@ export async function checkAdminAuth() {
         isAdmin: true,
         user: {
           id: 'debug-user-id',
-          email: 'marvinsmit1988@gmail.com',
+          email: 'admin@example.com',
           user_metadata: {
             full_name: 'Debug Admin User',
           },
@@ -65,16 +58,6 @@ export async function checkAdminAuth() {
     
     // Log the user for debugging
     logger.log('User found in server-side session:', { email: user.email, id: user.id });
-    
-    // Check if user's email is in the hardcoded admin list
-    if (user.email && ADMIN_EMAILS.includes(user.email)) {
-      logger.log('User is in hardcoded admin list, allowing access:', user.email);
-      return {
-        isAdmin: true,
-        user,
-        isAdminByEmail: true,
-      };
-    }
     
     // Check if user's email is in the environment variable admin list
     const adminEmails = getAdminEmails();
@@ -119,7 +102,7 @@ export async function checkAdminAuth() {
         isAdmin: true,
         user: {
           id: 'debug-user-id',
-          email: 'marvinsmit1988@gmail.com',
+          email: 'admin@example.com',
           user_metadata: {
             full_name: 'Debug Admin User',
           },
