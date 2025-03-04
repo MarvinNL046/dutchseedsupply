@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Layout } from '../../components/layout/Layout';
 import { AuthForm } from '../../components/ui/AuthForm';
@@ -9,7 +9,8 @@ import { supabase } from '../../lib/supabase';
 // Force dynamic rendering for this page
 export const dynamic = 'force-dynamic';
 
-export default function LoginDebugPage() {
+// Component to handle search params with suspense
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
@@ -105,18 +106,17 @@ export default function LoginDebugPage() {
   };
   
   return (
-    <Layout>
-      <div className="container mx-auto px-4 py-12">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold text-center mb-8">Login Debug Page</h1>
-          
-          {/* Display error message if there is one */}
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-              <p className="font-bold">Error</p>
-              <p>{error}</p>
-            </div>
-          )}
+    <div className="container mx-auto px-4 py-12">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-3xl font-bold text-center mb-8">Login Debug Page</h1>
+        
+        {/* Display error message if there is one */}
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <p className="font-bold">Error</p>
+            <p>{error}</p>
+          </div>
+        )}
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -198,8 +198,28 @@ export default function LoginDebugPage() {
               </div>
             </div>
           </div>
-        </div>
       </div>
+    </div>
+  );
+}
+
+// Main component with suspense boundary
+export default function LoginDebugPage() {
+  return (
+    <Layout>
+      <Suspense fallback={
+        <div className="container mx-auto px-4 py-12">
+          <div className="max-w-4xl mx-auto">
+            <h1 className="text-3xl font-bold text-center mb-8">Login Debug Page</h1>
+            <div className="flex flex-col items-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mb-4"></div>
+              <p className="text-gray-600">Loading...</p>
+            </div>
+          </div>
+        </div>
+      }>
+        <LoginContent />
+      </Suspense>
     </Layout>
   );
 }

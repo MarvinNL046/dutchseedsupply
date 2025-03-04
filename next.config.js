@@ -1,10 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Force server-side rendering for all pages to fix headers() usage
+  output: 'server',
   // Configure dynamic routes for admin and API routes
-  experimental: {
-    serverActions: true,
-  },
+  // Note: serverActions is now enabled by default in Next.js 14+
   images: {
     remotePatterns: [
       {
