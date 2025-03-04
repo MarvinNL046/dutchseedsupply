@@ -2,6 +2,9 @@ import { ReactNode } from 'react';
 import { Inter } from 'next/font/google';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+
+// Force dynamic rendering for admin routes
+export const dynamic = 'force-dynamic';
 import { 
   LayoutGrid, 
   Package, 

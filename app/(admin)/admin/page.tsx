@@ -11,6 +11,9 @@ import {
   Globe,
   ExternalLink
 } from 'lucide-react';
+
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic';
 import { Card } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
 import { createClient } from '../../../utils/supabase/server';

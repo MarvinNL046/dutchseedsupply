@@ -9,6 +9,8 @@ const CACHE_DURATION = 60 * 60 * 1000; // 1 hour
 // Get the current hostname from the request headers
 function getCurrentHostname(): string {
   try {
+    // In static contexts, headers() will throw an error
+    // We need to handle this gracefully
     const headersList = headers();
     const host = headersList.get('host') || '';
     
@@ -16,7 +18,8 @@ function getCurrentHostname(): string {
     return host.split(':')[0];
   } catch (error) {
     console.error('Error getting hostname:', error);
-    return '';
+    // Return a default hostname for static generation
+    return process.env.SITE_DOMAIN || 'dutchseedsupply.com';
   }
 }
 

@@ -1,6 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Configure dynamic routes for admin and API routes
+  experimental: {
+    serverActions: true,
+  },
   images: {
     remotePatterns: [
       {

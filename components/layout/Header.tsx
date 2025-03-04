@@ -4,6 +4,7 @@ import { useAuth } from '../../lib/auth-context';
 import { useSiteConfig } from '../../lib/use-site-config';
 import { CountryFlags } from '../ui/CountryFlags';
 import { getAdminEmails } from '../../utils/admin-config';
+import defaultConfig from '../../lib/site-config';
 
 /**
  * Header component with navigation
@@ -32,7 +33,7 @@ export const Header = () => {
           {/* Logo */}
           <Link href="/" className="flex items-center">
             {configLoading ? (
-              <span className="text-2xl font-heading font-bold text-primary">Loading...</span>
+              <span className="text-2xl font-heading font-bold text-primary">{defaultConfig.name}</span>
             ) : (
               config.branding.logo ? (
                 <div className="h-12 w-auto relative">
