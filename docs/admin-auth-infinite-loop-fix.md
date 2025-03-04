@@ -36,7 +36,7 @@ if (error || !user) {
 }
 ```
 
-## How to Apply the Fix
+## How to Apply the Fix Locally
 
 1. Run the following command to apply the fixed middleware:
 
@@ -53,6 +53,34 @@ This will:
 
 ```bash
 node scripts/restore-original-middleware.js
+```
+
+## How to Apply the Fix to Production
+
+For production environments, we've created a special version of the middleware that works regardless of the NODE_ENV setting:
+
+1. Run the following command to apply the production fix and deploy it:
+
+```bash
+node scripts/deploy-production-fix.js
+```
+
+This will:
+- Back up your current middleware to `middleware.backup.ts`
+- Apply the production-optimized middleware
+- Commit the changes to git
+- Deploy the changes to production using Vercel CLI
+
+2. To restore the original middleware, run:
+
+```bash
+node scripts/restore-middleware.js
+```
+
+And then deploy the changes to production:
+
+```bash
+vercel --prod
 ```
 
 ## Debugging Tools
@@ -86,4 +114,14 @@ The fix addresses the third issue by breaking the redirect loop, but the underly
 
 - The debug middleware (`middleware.debug.ts`) disables all redirects for admin routes, which is useful for debugging but not a permanent solution
 - The fixed middleware (`middleware.fixed.ts`) allows access to admin pages if coming from the login page, which breaks the infinite loop but may allow unauthorized access in some cases
+- The production middleware (`middleware.production.ts`) is optimized for production use and works regardless of the NODE_ENV setting
 - A more comprehensive solution would involve fixing the underlying authentication issues, but this fix should address the immediate problem of the infinite loop
+
+## Differences Between Local and Production Fixes
+
+| Feature | Local Fix | Production Fix |
+|---------|-----------|----------------|
+| Debug Mode Dependency | Depends on DEBUG_MODE (NODE_ENV === 'development') | Works regardless of NODE_ENV |
+| Deployment | Manual (git push + Vercel deploy) | Automatic via script |
+| Backup File | middleware.original.ts | middleware.backup.ts |
+| Restore Script | restore-original-middleware.js | restore-middleware.js |
