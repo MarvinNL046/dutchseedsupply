@@ -19,21 +19,29 @@ When deploying to Vercel, the build process was failing with the following error
 
 ## The Solution
 
-### 1. Force Server-Side Rendering
+### 1. Add Dynamic Flags to Server Components
 
-The main issue was that Vercel was trying to statically generate pages that use `headers()`, which is only available in server components. To fix this, we modified `next.config.js` to force server-side rendering for all pages:
+The main issue was that Vercel was trying to statically generate pages that use `headers()`, which is only available in server components. To fix this, we added the `dynamic = 'force-dynamic'` flag to the components that use `headers()`:
 
-```javascript
-// next.config.js
-const nextConfig = {
-  reactStrictMode: true,
-  // Force server-side rendering for all pages to fix headers() usage
-  output: 'server',
-  // Other configurations...
-};
+```typescript
+// lib/site-config-server.ts
+import { headers } from 'next/headers';
+
+// Force dynamic rendering for this file
+export const dynamic = 'force-dynamic';
+
+// Rest of the file...
 ```
 
-This tells Next.js to render all pages on the server, which allows the use of `headers()` and other server-only features.
+```typescript
+// app/layout.tsx
+// Force dynamic rendering for this layout
+export const dynamic = 'force-dynamic';
+
+// Rest of the file...
+```
+
+This tells Next.js to render these components on the server, which allows the use of `headers()` and other server-only features.
 
 ### 2. Wrap useSearchParams in Suspense
 
@@ -64,9 +72,60 @@ export default function LoginDebugPage() {
 
 This ensures that the page can handle the loading state properly when using `useSearchParams()`.
 
+### 3. Clean Up Next.js Configuration
+
+We also cleaned up the `next.config.js` file to remove deprecated options:
+
+```javascript
+// next.config.js
+const nextConfig = {
+  reactStrictMode: true,
+  // Configure dynamic routes for admin and API routes
+  images: {
+    // Image configuration...
+  },
+  // Other configurations...
+};
+```
+
+We removed the `experimental.serverActions` option since it's now enabled by default in Next.js 14+.
+
+### 4. Fix Tailwind Theme Generator
+
+We improved the error handling in the `scripts/generate-tailwind-theme.js` file to better handle parsing errors when loading the site configuration:
+
+```javascript
+try {
+  // Use a safer approach than eval
+  // First, clean up the string to make it valid JSON
+  const cleanedString = configString
+    .replace(/(\w+):/g, '"$1":') // Convert property names to quoted strings
+    .replace(/'/g, '"'); // Replace single quotes with double quotes
+  
+  try {
+    // Try to parse as JSON
+    siteConfig = JSON.parse(cleanedString);
+    console.log('Loaded site config from local file');
+  } catch (jsonError) {
+    // If JSON parsing fails, fall back to Function
+    try {
+      const configObj = Function(`return ${configString}`)();
+      siteConfig = configObj;
+      console.log('Loaded site config from local file using Function');
+    } catch (funcError) {
+      throw new Error(`Failed to parse config: ${funcError.message}`);
+    }
+  }
+} catch (evalError) {
+  console.error('Error parsing config from file:', evalError);
+  // Fallback to default configuration...
+}
+```
+
+This makes the build process more robust by providing multiple fallback mechanisms.
+
 ## Additional Notes
 
-- The `serverActions` option was removed from `next.config.js` as it's now enabled by default in Next.js 14+.
 - These changes should not affect the functionality of the site, but they will change how pages are rendered (server-side instead of static).
 - If you need to optimize performance in the future, you can selectively enable static generation for specific pages by adding `export const dynamic = 'force-static'` to those pages.
 
