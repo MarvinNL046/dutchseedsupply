@@ -2,10 +2,11 @@ import { cookies } from 'next/headers';
 import { createServerClient } from '@supabase/ssr';
 import { redirect } from 'next/navigation';
 import logger from '../../lib/utils/logger';
+import { getAdminEmails } from '../admin-config';
 
-// Always enable debug mode for now to bypass authentication checks
-// This will be removed once the admin panel is working correctly
-const DEBUG_MODE = true;
+// DEBUG MODE - Only enabled in development environment
+// This will bypass all authentication checks and allow access to the admin panel
+const DEBUG_MODE = process.env.NODE_ENV === 'development';
 
 export async function createClient() {
   const cookieStore = cookies();
@@ -75,7 +76,7 @@ export async function checkAdminAuth() {
             full_name: 'Debug Admin User',
           },
         },
-        isAdminByEmail: false,
+        isAdminByEmail: true,
         debugMode: true,
       };
     }
@@ -91,6 +92,13 @@ export async function checkAdminAuth() {
     
     // Log the user for debugging
     logger.log('User found in server-side session:', { email: user.email, id: user.id });
+    
+    // Check if user's email is in the environment variable admin list
+    const adminEmails = getAdminEmails();
+    if (user.email && adminEmails.includes(user.email)) {
+      logger.log('User is in admin list, allowing access:', user.email);
+      return { isAdmin: true, user, isAdminByEmail: true };
+    }
     
     // Check if user is admin in the database
     const supabase = await createClient();
@@ -126,7 +134,7 @@ export async function checkAdminAuth() {
             full_name: 'Debug Admin User',
           },
         },
-        isAdminByEmail: false,
+        isAdminByEmail: true,
         debugMode: true,
         error: String(error),
       };

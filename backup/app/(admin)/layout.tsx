@@ -13,9 +13,12 @@ import {
   ShoppingCart, 
   Users, 
   LogOut,
+  ChevronRight,
   FileText,
   RefreshCw
 } from 'lucide-react';
+import MobileMenu from './components/MobileMenu';
+import ErrorBoundary from './components/ErrorBoundary';
 import { ThemeProvider } from '../../components/ui/theme-provider';
 import { ThemeToggle } from '../../components/ui/theme-toggle';
 import { Toaster } from '../../components/ui/toaster';
@@ -44,7 +47,12 @@ export default async function AdminLayout({
   children: ReactNode;
 }) {
   // Server-side admin check
-  const { isAdmin, user, debugMode } = await checkAdminAuth();
+  const { isAdmin, user, isAdminByEmail } = await checkAdminAuth();
+  
+  // If not admin, redirect to homepage
+  if (!isAdmin) {
+    redirect('/');
+  }
   
   return (
     <html lang="nl" suppressHydrationWarning>
@@ -53,30 +61,33 @@ export default async function AdminLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-        <title>Dutch Seed Supply Admin</title>
+        <title>SenseBy Admin</title>
       </head>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <SiteConfigProvider>
             <Toaster />
           <div className="flex h-screen bg-background text-foreground">
-            {/* Debug mode banner - always shown for now */}
-            <div className="fixed top-0 left-0 right-0 bg-yellow-500 text-white p-1 text-center text-xs z-50">
-              {debugMode ? (
-                <strong>DEBUG MODE ENABLED - Authentication checks are bypassed</strong>
-              ) : (
-                <>
-                  Server-side admin check passed: {user?.email}
-                </>
-              )}
-            </div>
+            {/* Debug mode banner - only shown in development */}
+            {process.env.NODE_ENV === 'development' && (
+              <div className="fixed top-0 left-0 right-0 bg-yellow-500 text-white p-1 text-center text-xs z-50">
+                {user && 'debugMode' in user ? (
+                  <strong>DEBUG MODE ENABLED - Authentication checks are bypassed</strong>
+                ) : (
+                  <>
+                    Server-side admin check passed: {user?.email}
+                    {isAdminByEmail && ' (Admin by email)'}
+                  </>
+                )}
+              </div>
+            )}
             
             {/* Sidebar */}
             <div className="hidden md:flex md:flex-col md:w-64 md:fixed md:inset-y-0 bg-card shadow-md">
               <div className="flex flex-col flex-grow pt-5 pb-4 overflow-y-auto">
                 <div className="flex items-center justify-between flex-shrink-0 px-4 mb-5">
                   <Link href="/admin" className="text-xl font-bold text-primary">
-                    Dutch Seed Supply Admin
+                    SenseBy Admin
                   </Link>
                   <ThemeToggle />
                 </div>
@@ -108,7 +119,7 @@ export default async function AdminLayout({
                     <div className="flex items-center">
                       <div className="ml-3">
                         <p className="text-sm font-medium text-foreground group-hover:text-foreground">
-                          {user?.email || 'Debug User'}
+                          {user?.email}
                         </p>
                         <p className="text-xs font-medium text-muted-foreground group-hover:text-foreground flex items-center">
                           <LogOut className="w-3 h-3 mr-1" />
@@ -122,31 +133,12 @@ export default async function AdminLayout({
             </div>
             
             {/* Mobile menu */}
-            <div className="md:hidden fixed top-0 left-0 right-0 bg-card shadow-md z-40 pt-10">
-              <div className="flex items-center justify-between px-4 py-2">
-                <Link href="/admin" className="text-xl font-bold text-primary">
-                  Dutch Seed Supply Admin
-                </Link>
-                <ThemeToggle />
-              </div>
-              <nav className="px-2 py-2 flex overflow-x-auto space-x-2">
-                {navItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="flex flex-col items-center p-2 text-xs font-medium rounded-md text-foreground hover:bg-accent hover:text-accent-foreground"
-                  >
-                    {item.icon}
-                    <span className="mt-1">{item.label}</span>
-                  </Link>
-                ))}
-              </nav>
-            </div>
+            <MobileMenu />
             
             {/* Main content */}
             <div className="md:pl-64 flex flex-col flex-1">
               <main className="flex-1">
-                <div className="py-6 pt-16 md:pt-6">
+                <div className="py-6">
                   <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 flex justify-between items-center">
                     <h1 className="text-2xl font-semibold text-foreground">Admin Beheer</h1>
                     <div className="md:hidden">
@@ -154,7 +146,9 @@ export default async function AdminLayout({
                     </div>
                   </div>
                   <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 mt-4">
-                    {children}
+                    <ErrorBoundary>
+                      {children}
+                    </ErrorBoundary>
                   </div>
                 </div>
               </main>

@@ -1,10 +1,11 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { updateSession } from './utils/supabase/middleware';
+import { getAdminEmails } from './utils/admin-config';
 
-// Always enable debug mode for now to bypass authentication checks
-// This will be removed once the admin panel is working correctly
-const DEBUG_MODE = true;
+// DEBUG MODE - Only enabled in development environment
+// This will bypass all authentication checks and allow access to the admin panel
+const DEBUG_MODE = process.env.NODE_ENV === 'development';
 
 /**
  * Middleware function for handling authentication and admin access
@@ -21,6 +22,12 @@ export async function middleware(request: NextRequest) {
     // If debug mode is enabled, allow access to the admin panel
     if (DEBUG_MODE) {
       console.log('DEBUG MODE ENABLED in middleware - Bypassing authentication checks');
+      return response;
+    }
+    
+    // Special case for debug pages
+    if (pathname.includes('debug')) {
+      console.log('Debug page detected, allowing access: ' + pathname);
       return response;
     }
     
@@ -58,12 +65,26 @@ export async function middleware(request: NextRequest) {
     if (error || !user) {
       console.log('No user found, redirecting to login');
       
+      // IMPORTANT: Check if we're coming from the login page to prevent infinite loops
+      const referer = request.headers.get('referer') || '';
+      if (referer.includes('/login')) {
+        console.log('Coming from login page, allowing access to prevent infinite loop');
+        return response;
+      }
+      
       // Add the redirect URL as a query parameter
       const redirectUrl = new URL('/login', request.url);
       redirectUrl.searchParams.set('redirect', pathname);
       return NextResponse.redirect(redirectUrl);
     }
     
+    // Check if user's email is in the environment variable admin list
+    const adminEmails = getAdminEmails();
+    if (user.email && adminEmails.includes(user.email)) {
+      console.log('User is in admin list, allowing access:', user.email);
+      return response;
+    }
+
     // Check if user has admin role in database
     const { data: userData, error: dbError } = await supabase
       .from('users')

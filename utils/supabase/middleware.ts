@@ -1,13 +1,19 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import { NextResponse, type NextRequest } from 'next/server';
+import { createServerClient } from '@supabase/ssr';
+import { NextRequest, NextResponse } from 'next/server';
 
+/**
+ * Update the Supabase auth session in the middleware
+ * This is used to refresh the session and update the cookies
+ */
 export async function updateSession(request: NextRequest) {
+  // Create a response object that we can modify
   let response = NextResponse.next({
     request: {
       headers: request.headers,
     },
   });
 
+  // Create a Supabase client for this specific middleware invocation
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -16,14 +22,14 @@ export async function updateSession(request: NextRequest) {
         get(name: string) {
           return request.cookies.get(name)?.value;
         },
-        set(name: string, value: string, options: CookieOptions) {
+        set(name: string, value: string, options) {
           response.cookies.set({
             name,
             value,
             ...options,
           });
         },
-        remove(name: string, options: CookieOptions) {
+        remove(name: string, options) {
           response.cookies.set({
             name,
             value: '',
@@ -34,7 +40,7 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // Refresh session if expired
+  // Refresh the session
   await supabase.auth.getSession();
 
   return response;
