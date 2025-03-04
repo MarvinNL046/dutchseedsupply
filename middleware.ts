@@ -3,9 +3,15 @@ import { createServerClient } from '@supabase/ssr';
 import { updateSession } from './utils/supabase/middleware';
 import { getAdminEmails } from './utils/admin-config';
 
-// DEBUG MODE - Temporarily enabled in all environments
+// DEBUG MODE - Only enabled in development environment
 // This will bypass all authentication checks and allow access to the admin panel
-const DEBUG_MODE = true; // process.env.NODE_ENV === 'development';
+const DEBUG_MODE = process.env.NODE_ENV === 'development';
+
+// List of admin email addresses that should always have access
+const ADMIN_EMAILS = [
+  'marvinsmit1988@gmail.com',
+  // Add other admin emails here
+];
 
 /**
  * Middleware function for handling authentication and admin access
@@ -24,60 +30,113 @@ export async function middleware(request: NextRequest) {
       console.log('DEBUG MODE ENABLED in middleware - Bypassing authentication checks');
       return response;
     }
-    
-    // Create a Supabase client for this specific middleware invocation
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return request.cookies.get(name)?.value;
-          },
-          set(name: string, value: string, options) {
-            response.cookies.set({
-              name,
-              value,
-              ...options,
-            });
-          },
-          remove(name: string, options) {
-            response.cookies.set({
-              name,
-              value: '',
-              ...options,
-            });
-          },
-        },
-      }
-    );
 
-    const { data: { user } } = await supabase.auth.getUser();
+    // Create a Supabase client for this specific middleware invocation
+    let user;
+    try {
     
+      const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+          cookies: {
+            get(name: string) {
+              return request.cookies.get(name)?.value;
+            },
+            set(name: string, value: string, options) {
+              response.cookies.set({
+                name,
+                value,
+                ...options,
+              });
+            },
+            remove(name: string, options) {
+              response.cookies.set({
+                name,
+                value: '',
+                ...options,
+              });
+            },
+          },
+        }
+      );
+
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      user = authUser;
+    } catch (error) {
+      console.error('Error getting user in middleware:', error);
+      // Continue with user as undefined
+    }
+    
+    // If user is not authenticated, redirect to login
     if (!user) {
-      // Redirect to login if not authenticated
       const redirectUrl = new URL('/login', request.url);
       redirectUrl.searchParams.set('redirect', pathname);
       return NextResponse.redirect(redirectUrl);
     }
 
-    // Check if user is in admin list from environment variables
-    const adminEmails = getAdminEmails();
-    if (user.email && adminEmails.includes(user.email)) {
+    // Check if user's email is in the hardcoded admin list
+    if (user.email && ADMIN_EMAILS.includes(user.email)) {
+      console.log('User is in hardcoded admin list, allowing access:', user.email);
       return response;
     }
 
-    // Check if user has admin role in database
-    const { data: userData, error } = await supabase
-      .from('users')
-      .select('is_admin')
-      .eq('id', user.id)
-      .single();
-
-    if (error || !userData?.is_admin) {
-      // Redirect to homepage if not admin
-      return NextResponse.redirect(new URL('/', request.url));
+    // Check if user's email is in the environment variable admin list
+    const adminEmails = getAdminEmails();
+    if (user.email && adminEmails.includes(user.email)) {
+      console.log('User is in environment admin list, allowing access:', user.email);
+      return response;
     }
+
+    try {
+      // Create a Supabase client for this specific middleware invocation
+      const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+          cookies: {
+            get(name: string) {
+              return request.cookies.get(name)?.value;
+            },
+            set(name: string, value: string, options) {
+              response.cookies.set({
+                name,
+                value,
+                ...options,
+              });
+            },
+            remove(name: string, options) {
+              response.cookies.set({
+                name,
+                value: '',
+                ...options,
+              });
+            },
+          },
+        }
+      );
+
+      // Check if user has admin role in database
+      const { data: userData, error } = await supabase
+        .from('users')
+        .select('is_admin')
+        .eq('id', user.id)
+        .single();
+
+      if (error) {
+        console.error('Error checking admin status in middleware:', error);
+        // If there's an error, we'll fall through to the redirect
+      } else if (userData?.is_admin) {
+        console.log('User is admin in database, allowing access:', user.email);
+        return response;
+      }
+    } catch (error) {
+      console.error('Unexpected error in middleware admin check:', error);
+      // If there's an error, we'll fall through to the redirect
+    }
+
+    // If we get here, the user is not an admin, redirect to homepage
+    return NextResponse.redirect(new URL('/', request.url));
   }
 
   return response;
