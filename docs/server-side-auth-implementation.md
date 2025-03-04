@@ -1,155 +1,54 @@
 # Server-Side Authentication Implementation
 
-Dit document beschrijft de implementatie van server-side authenticatie voor het admin panel, gebruikmakend van Next.js App Router en Supabase SSR.
+This document explains the implementation of server-side authentication in the Dutch Seed Supply application.
 
-## Overzicht
+## Overview
 
-De nieuwe implementatie gebruikt server-side rendering (SSR) en middleware om te voorkomen dat niet-admin gebruikers het admin panel kunnen zien. Dit lost het beveiligingsprobleem op waarbij niet-admin gebruikers kort het admin panel konden zien voordat ze werden doorgestuurd naar de homepage.
+The authentication system has been updated to use server-side API routes for handling sensitive operations like sign-in and sign-up. This prevents sensitive information like passwords from being visible in network requests.
 
-## Technische Details
+## Key Components
 
-### 1. App Directory Structuur
+### API Routes
 
-We hebben de volgende structuur geïmplementeerd:
+1. **`/api/auth/signin`**: Handles user sign-in on the server side
+2. **`/api/auth/signup`**: Handles user registration on the server side
+3. **`/api/auth/signout`**: Handles user sign-out on the server side
 
-```
-app/
-├── (admin)/
-│   ├── admin/
-│   │   ├── page.tsx
-│   │   └── orders/
-│   │       └── page.tsx
-│   └── layout.tsx
-├── login/
-│   └── page.tsx
-├── utils/
-│   ├── supabase-client.ts
-│   └── supabase-server.ts
-├── layout.tsx
-└── page.tsx
-```
+### Client-Side Authentication
 
-De `(admin)` directory is een route group die een gedeelde layout heeft voor alle admin pagina's. De layout bevat de server-side authenticatie check.
+The `lib/auth.ts` file has been updated to use these API routes instead of directly calling Supabase from the client. This ensures that passwords and other sensitive information are not visible in network requests.
 
-### 2. Middleware
+### Admin Authentication
 
-We hebben een middleware geïmplementeerd die draait voor elke verzoek naar de server. De middleware:
+The admin authentication system has been updated to use environment variables for admin emails instead of hardcoded values. This improves security and makes the application more configurable.
 
-1. Vernieuwt de Supabase sessie
-2. Controleert of de gebruiker is ingelogd voor admin routes
-3. Controleert of de gebruiker admin rechten heeft
-4. Redirected niet-admin gebruikers naar de login pagina of homepage
+## How It Works
 
-```typescript
-// middleware.ts
-export async function middleware(request: NextRequest) {
-  // ...
-  
-  // For admin routes, check if user is authenticated and has admin role
-  if (request.nextUrl.pathname.startsWith('/admin')) {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      // Redirect to login if not authenticated
-      const redirectUrl = new URL('/login', request.url);
-      redirectUrl.searchParams.set('redirect', request.nextUrl.pathname);
-      return NextResponse.redirect(redirectUrl);
-    }
+1. When a user submits the login form, the client-side code sends a request to the `/api/auth/signin` API route
+2. The API route handles the authentication on the server side using Supabase
+3. The session is established using cookies, which are automatically included in subsequent requests
+4. The client receives only the necessary user information, not the session token or other sensitive data
 
-    // Check if user is admin
-    // ...
-  }
-  
-  // ...
-}
-```
+## Security Improvements
 
-### 3. Server-Side Supabase Client
+1. **Password Protection**: Passwords are no longer visible in network requests, as they are only sent to the server-side API routes
+2. **No Hardcoded Credentials**: Admin emails are now managed through environment variables
+3. **Server-Side Validation**: Input validation is performed on both client and server sides
 
-We hebben een server-side Supabase client geïmplementeerd die werkt met de Next.js App Router:
+## Configuration
 
-```typescript
-// app/utils/supabase-server.ts
-export const createClient = () => {
-  const cookieStore = cookies();
+Admin users can be configured in two ways:
 
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
-        },
-        set(name: string, value: string, options) {
-          // ...
-        },
-        remove(name: string, options) {
-          // ...
-        },
-      },
-    }
-  );
-};
-```
+1. **Environment Variables**: Set the `ADMIN_EMAILS` environment variable with a comma-separated list of admin email addresses
+2. **Database**: Set the `is_admin` flag to `true` in the `users` table for specific users
 
-### 4. Admin Layout met Server-Side Check
+## Debugging
 
-De admin layout bevat een server-side authenticatie check die voorkomt dat niet-admin gebruikers het admin panel kunnen zien:
+In development mode, the application includes a debug mode that bypasses authentication checks for admin routes. This is only enabled in the development environment and is disabled in production.
 
-```typescript
-// app/(admin)/layout.tsx
-export default async function AdminLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
-  // Server-side admin check
-  const { isAdmin, user, isAdminByEmail } = await checkAdminAuth();
-  
-  // If not admin, redirect to homepage
-  if (!isAdmin) {
-    redirect('/');
-  }
-  
-  // ...
-}
-```
+## Future Improvements
 
-### 5. Client-Side Supabase Client
-
-We hebben ook een client-side Supabase client geïmplementeerd voor gebruik in client components:
-
-```typescript
-// app/utils/supabase-client.ts
-'use client';
-
-import { createBrowserClient } from '@supabase/ssr';
-
-export const createClient = () => {
-  return createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-};
-```
-
-## Voordelen van deze Implementatie
-
-1. **Betere Beveiliging**: Niet-admin gebruikers kunnen het admin panel niet zien, zelfs niet voor een kort moment.
-2. **Betere Gebruikerservaring**: Gebruikers worden direct doorgestuurd naar de juiste pagina.
-3. **Betere Performance**: Server-side rendering is sneller dan client-side rendering.
-4. **Betere SEO**: Server-side rendering is beter voor SEO.
-5. **Betere Toegankelijkheid**: Server-side rendering is beter voor toegankelijkheid.
-
-## Toekomstige Verbeteringen
-
-1. **Rolgebaseerde Toegangscontrole**: Implementeer een meer gedetailleerd permissiesysteem voor verschillende admin rollen.
-2. **Caching**: Voeg caching toe aan de admin check om het aantal database queries te verminderen.
-3. **Audit Logging**: Voeg een audit log toe om alle toegangspogingen tot het admin panel te registreren.
-4. **Migreer alle Admin Pagina's**: Migreer alle admin pagina's naar de app directory.
-5. **Voeg Custom Claims toe**: Voeg custom claims toe aan de Supabase sessie voor betere performance.
-
-## Conclusie
-
-Deze implementatie lost het beveiligingsprobleem op waarbij niet-admin gebruikers kort het admin panel konden zien. Door gebruik te maken van server-side rendering en middleware, kunnen we ervoor zorgen dat alleen admin gebruikers toegang hebben tot het admin panel.
+1. Implement CSRF protection for the authentication API routes
+2. Add rate limiting to prevent brute force attacks
+3. Implement two-factor authentication
+4. Add more comprehensive logging for security events

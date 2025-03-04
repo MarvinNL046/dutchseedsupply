@@ -12,29 +12,36 @@ export type SignInCredentials = {
 };
 
 /**
- * Sign up a new user
+ * Sign up a new user using server-side API
+ * This prevents passwords from being visible in network requests
  */
 export async function signUp({ email, password, full_name }: SignUpCredentials) {
   console.log('Attempting to sign up user:', email);
   
   try {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name,
-        },
+    const response = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
+      body: JSON.stringify({ email, password, full_name }),
     });
     
-    if (error) {
-      console.error('Sign up error:', error);
-    } else {
-      console.log('Sign up successful for user:', email);
+    const result = await response.json();
+    
+    if (!response.ok) {
+      console.error('Sign up error:', result.error);
+      return { 
+        data: null, 
+        error: new Error(result.error || 'Failed to sign up') 
+      };
     }
     
-    return { data, error };
+    console.log('Sign up successful for user:', email);
+    return { 
+      data: { user: result.user }, 
+      error: null 
+    };
   } catch (err) {
     console.error('Unexpected error during sign up:', err);
     return { 
@@ -47,24 +54,36 @@ export async function signUp({ email, password, full_name }: SignUpCredentials) 
 }
 
 /**
- * Sign in an existing user
+ * Sign in an existing user using server-side API
+ * This prevents passwords from being visible in network requests
  */
 export async function signIn({ email, password }: SignInCredentials) {
   console.log('Attempting to sign in user:', email);
   
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+    const response = await fetch('/api/auth/signin', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
     });
     
-    if (error) {
-      console.error('Sign in error:', error);
-    } else {
-      console.log('Sign in successful for user:', email);
+    const result = await response.json();
+    
+    if (!response.ok) {
+      console.error('Sign in error:', result.error);
+      return { 
+        data: null, 
+        error: new Error(result.error || 'Failed to sign in') 
+      };
     }
     
-    return { data, error };
+    console.log('Sign in successful for user:', email);
+    return { 
+      data: { user: result.user, session: {} }, // Session is handled by cookies
+      error: null 
+    };
   } catch (err) {
     console.error('Unexpected error during sign in:', err);
     return { 
@@ -77,21 +96,28 @@ export async function signIn({ email, password }: SignInCredentials) {
 }
 
 /**
- * Sign out the current user
+ * Sign out the current user using server-side API
  */
 export async function signOut() {
   console.log('Signing out user...');
   
   try {
-    const { error } = await supabase.auth.signOut();
+    const response = await fetch('/api/auth/signout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
     
-    if (error) {
-      console.error('Sign out error:', error);
-    } else {
-      console.log('Sign out successful');
+    const result = await response.json();
+    
+    if (!response.ok) {
+      console.error('Sign out error:', result.error);
+      return { error: new Error(result.error || 'Failed to sign out') };
     }
     
-    return { error };
+    console.log('Sign out successful');
+    return { error: null };
   } catch (err) {
     console.error('Unexpected error during sign out:', err);
     return { 
@@ -104,6 +130,7 @@ export async function signOut() {
 
 /**
  * Get the current user
+ * This still uses the Supabase client directly since it doesn't involve sending sensitive data
  */
 export async function getCurrentUser() {
   console.log('Getting current user session...');

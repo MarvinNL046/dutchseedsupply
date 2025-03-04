@@ -7,12 +7,6 @@ import { getAdminEmails } from './utils/admin-config';
 // This will bypass all authentication checks and allow access to the admin panel
 const DEBUG_MODE = process.env.NODE_ENV === 'development';
 
-// List of admin email addresses that should always have access
-const ADMIN_EMAILS = [
-  'marvinsmit1988@gmail.com',
-  // Add other admin emails here
-];
-
 /**
  * Middleware function for handling authentication and admin access
  */
@@ -84,16 +78,10 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(redirectUrl);
     }
     
-    // Check if user's email is in the hardcoded admin list
-    if (user.email && ADMIN_EMAILS.includes(user.email)) {
-      console.log('User is in hardcoded admin list, allowing access:', user.email);
-      return response;
-    }
-
     // Check if user's email is in the environment variable admin list
     const adminEmails = getAdminEmails();
     if (user.email && adminEmails.includes(user.email)) {
-      console.log('User is in environment admin list, allowing access:', user.email);
+      console.log('User is in admin list, allowing access:', user.email);
       return response;
     }
 
