@@ -140,9 +140,25 @@ async function main() {
           
           try {
             // Use a safer approach than eval
-            const configObj = Function(`return ${configString}`)();
-            siteConfig = configObj;
-            console.log('Loaded site config from local file');
+            // First, clean up the string to make it valid JSON
+            const cleanedString = configString
+              .replace(/(\w+):/g, '"$1":') // Convert property names to quoted strings
+              .replace(/'/g, '"'); // Replace single quotes with double quotes
+            
+            try {
+              // Try to parse as JSON
+              siteConfig = JSON.parse(cleanedString);
+              console.log('Loaded site config from local file');
+            } catch (jsonError) {
+              // If JSON parsing fails, fall back to Function
+              try {
+                const configObj = Function(`return ${configString}`)();
+                siteConfig = configObj;
+                console.log('Loaded site config from local file using Function');
+              } catch (funcError) {
+                throw new Error(`Failed to parse config: ${funcError.message}`);
+              }
+            }
           } catch (evalError) {
             console.error('Error parsing config from file:', evalError);
             

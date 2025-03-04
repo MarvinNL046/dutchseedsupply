@@ -5,6 +5,9 @@ import { Metadata } from 'next';
 import { SiteConfigProvider } from '../lib/site-config-context';
 import { AuthProvider } from '../lib/auth-context';
 
+// Force dynamic rendering for this layout
+export const dynamic = 'force-dynamic';
+
 const inter = Inter({ subsets: ['latin'] });
 
 /**

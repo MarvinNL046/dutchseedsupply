@@ -2,6 +2,9 @@ import { createClient } from '@supabase/supabase-js';
 import { headers } from 'next/headers';
 import defaultConfig, { SiteConfig } from './site-config';
 
+// Force dynamic rendering for this file
+export const dynamic = 'force-dynamic';
+
 let cachedConfig: SiteConfig | null = null;
 let cacheTime = 0;
 const CACHE_DURATION = 60 * 60 * 1000; // 1 hour
