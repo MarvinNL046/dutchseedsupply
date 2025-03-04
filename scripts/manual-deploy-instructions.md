@@ -18,6 +18,15 @@ Since we're encountering issues with the Vercel CLI deployment, here are instruc
 3. Commit and push the change
 4. This will trigger a new deployment on Vercel
 
+## Vercel Deployment Fixes
+
+We've made the following changes to fix the Vercel deployment issues:
+
+1. **Force Server-Side Rendering**: Modified `next.config.js` to set `output: 'server'` to fix the "Dynamic server usage" errors.
+2. **Suspense Boundary**: Wrapped `useSearchParams()` in a Suspense boundary in the `/login/debug-page.tsx` file.
+
+These changes should resolve the build errors related to static generation and headers usage. For more details, see the `docs/vercel-deployment-fixes.md` file.
+
 ## Choosing the Right Middleware
 
 We've created several middleware options to address different issues:
