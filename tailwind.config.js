@@ -12,21 +12,21 @@ module.exports = {
     "extend": {
       "colors": {
         "primary": {
-          "DEFAULT": "#2D6A4F",
-          "light": "#52B788",
-          "dark": "#1B4332",
+          "DEFAULT": "#4D7C0F",
+          "light": "#84CC16",
+          "dark": "#3F6212",
           "foreground": "#FFFFFF"
         },
         "secondary": {
-          "DEFAULT": "#74C69D",
-          "light": "#B7E4C7",
-          "dark": "#40916C",
+          "DEFAULT": "#F59E0B",
+          "light": "#FBBF24",
+          "dark": "#D97706",
           "foreground": "#FFFFFF"
         },
         "accent": {
-          "DEFAULT": "#D8F3DC",
-          "dark": "#D8F3DC",
-          "foreground": "#1B4332"
+          "DEFAULT": "#ECFCCB",
+          "dark": "#ECFCCB",
+          "foreground": "#3F6212"
         },
         "neutral": {
           "DEFAULT": "#E9ECEF",
@@ -50,11 +50,11 @@ module.exports = {
         "foreground": "#212529",
         "border": "#E9ECEF",
         "input": "#CED4DA",
-        "ring": "#2D6A4F",
+        "ring": "#4D7C0F",
         "dark-primary": {
-          "DEFAULT": "#52B788",
-          "light": "#74C69D",
-          "dark": "#2D6A4F",
+          "DEFAULT": "#84CC16",
+          "light": "#F59E0B",
+          "dark": "#4D7C0F",
           "foreground": "#FFFFFF"
         },
         "dark-background": "#1A1A1A",
@@ -72,15 +72,15 @@ module.exports = {
       },
       "fontFamily": {
         "sans": [
-          "Inter",
+          "Open Sans",
           "sans-serif"
         ],
         "heading": [
-          "Montserrat",
+          "Poppins",
           "sans-serif"
         ],
         "accent": [
-          "Playfair Display",
+          "Merriweather",
           "serif"
         ]
       },
