@@ -6,7 +6,7 @@ import { Layout } from '../../components/layout/Layout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
-import { getCurrentUser, signOut } from '../../lib/auth';
+import { getCurrentUser } from '../../lib/auth';
 import { getUserProfile, getUserOrders, getLoyaltyPoints } from '../../lib/db';
 import { User, Package, Gift } from 'lucide-react';
 
@@ -18,6 +18,7 @@ export default function AccountPage() {
   const [loyaltyPoints, setLoyaltyPoints] = useState(0);
   const [loading, setLoading] = useState(true);
   const [loyaltyError, setLoyaltyError] = useState<string | null>(null);
+  const [signingOut, setSigningOut] = useState(false);
   
   // Check if user is logged in
   useEffect(() => {
@@ -70,10 +71,36 @@ export default function AccountPage() {
     checkAuth();
   }, [router]);
   
-  // Handle logout
+  // Handle logout - improved with direct API call and error handling
   const handleLogout = async () => {
-    await signOut();
-    router.push('/');
+    try {
+      setSigningOut(true);
+      
+      // Use direct fetch to the signout API endpoint
+      const response = await fetch('/api/auth/signout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        const result = await response.json();
+        console.error('Sign out error:', result.error);
+        alert('Failed to sign out. Please try again.');
+        setSigningOut(false);
+        return;
+      }
+      
+      console.log('Sign out successful');
+      
+      // Redirect to home page after signing out
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Unexpected error during sign out:', error);
+      alert('An unexpected error occurred during sign out. Please try again.');
+      setSigningOut(false);
+    }
   };
   
   // Format date
@@ -110,7 +137,13 @@ export default function AccountPage() {
       <div className="container mx-auto px-4 py-12">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">My Account</h1>
-          <Button variant="outline" onClick={handleLogout}>Sign Out</Button>
+          <Button 
+            variant="outline" 
+            onClick={handleLogout} 
+            disabled={signingOut}
+          >
+            {signingOut ? 'Signing Out...' : 'Sign Out'}
+          </Button>
         </div>
         
         <Tabs defaultValue="profile" className="w-full">

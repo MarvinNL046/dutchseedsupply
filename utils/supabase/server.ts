@@ -3,15 +3,19 @@ import { createServerClient } from '@supabase/ssr';
 import { redirect } from 'next/navigation';
 import logger from '../../lib/utils/logger';
 
-// Use the ADMIN_DEBUG_MODE environment variable or fall back to development check
+// Only enable debug mode in development or if explicitly enabled
 const DEBUG_MODE = process.env.ADMIN_DEBUG_MODE === 'true' || process.env.NODE_ENV === 'development';
 
 export async function createClient() {
   const cookieStore = cookies();
 
+  // Support both naming conventions for Supabase URL and key
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
+
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl!,
+    supabaseKey!,
     {
       cookies: {
         get(name: string) {
@@ -74,7 +78,6 @@ export async function checkAdminAuth() {
             full_name: 'Debug Admin User',
           },
         },
-        isAdminByEmail: false,
         debugMode: true,
       };
     }
@@ -108,7 +111,7 @@ export async function checkAdminAuth() {
     }
     
     // User is an admin, return the user object
-    return { isAdmin: true, user, isAdminByEmail: false };
+    return { isAdmin: true, user, debugMode: false };
   } catch (error) {
     logger.error('Unexpected error in checkAdminAuth:', error);
     
@@ -125,7 +128,6 @@ export async function checkAdminAuth() {
             full_name: 'Debug Admin User',
           },
         },
-        isAdminByEmail: false,
         debugMode: true,
         error: String(error),
       };

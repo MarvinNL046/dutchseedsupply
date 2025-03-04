@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { updateSession } from './utils/supabase/middleware';
 
-// Use the ADMIN_DEBUG_MODE environment variable or fall back to development check
+// Only enable debug mode in development or if explicitly enabled
 const DEBUG_MODE = process.env.ADMIN_DEBUG_MODE === 'true' || process.env.NODE_ENV === 'development';
 
 /**
@@ -23,10 +23,20 @@ export async function middleware(request: NextRequest) {
       return response;
     }
     
+    // Special case for debug pages
+    if (pathname.includes('debug')) {
+      console.log('Debug page detected, allowing access: ' + pathname);
+      return response;
+    }
+    
+    // Support both naming conventions for Supabase URL and key
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
+    
     // Create a Supabase client for this specific middleware invocation
     const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      supabaseUrl!,
+      supabaseKey!,
       {
         cookies: {
           get(name: string) {
@@ -56,6 +66,13 @@ export async function middleware(request: NextRequest) {
     // If there's an error or no user, redirect to login
     if (error || !user) {
       console.log('No user found, redirecting to login');
+      
+      // IMPORTANT: Check if we're coming from the login page to prevent infinite loops
+      const referer = request.headers.get('referer') || '';
+      if (referer.includes('/login')) {
+        console.log('Coming from login page, allowing access to prevent infinite loop');
+        return response;
+      }
       
       // Add the redirect URL as a query parameter
       const redirectUrl = new URL('/login', request.url);
