@@ -20,7 +20,6 @@ import { ThemeProvider } from '../../components/ui/theme-provider';
 import { ThemeToggle } from '../../components/ui/theme-toggle';
 import { Toaster } from '../../components/ui/toaster';
 import { checkAdminAuth } from '../../utils/supabase/server';
-import { createClient } from '../../utils/supabase/client';
 import { SiteConfigProvider } from '../../lib/site-config-context';
 import '../../styles/globals.css';
 
@@ -96,28 +95,36 @@ export default async function AdminLayout({
               </div>
               
               <div className="flex-shrink-0 flex border-t border-border p-4">
-                <form action={async () => {
-                  'use server';
-                  const supabase = createClient();
-                  await supabase.auth.signOut();
-                }}>
-                  <button
-                    type="submit"
-                    className="flex-shrink-0 group block w-full"
-                  >
-                    <div className="flex items-center">
-                      <div className="ml-3">
-                        <p className="text-sm font-medium text-foreground group-hover:text-foreground">
-                          {user?.email || 'Debug User'}
-                        </p>
-                        <p className="text-xs font-medium text-muted-foreground group-hover:text-foreground flex items-center">
-                          <LogOut className="w-3 h-3 mr-1" />
-                          Uitloggen
-                        </p>
-                      </div>
+                {/* Use a simple link to the signout API route instead of a server action */}
+                <Link 
+                  href="/api/auth/signout"
+                  className="flex-shrink-0 group block w-full"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    // Use fetch to call the signout API
+                    fetch('/api/auth/signout', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                    }).then(() => {
+                      // Redirect to home page after signing out
+                      window.location.href = '/';
+                    });
+                  }}
+                >
+                  <div className="flex items-center">
+                    <div className="ml-3">
+                      <p className="text-sm font-medium text-foreground group-hover:text-foreground">
+                        {user?.email || 'Debug User'}
+                      </p>
+                      <p className="text-xs font-medium text-muted-foreground group-hover:text-foreground flex items-center">
+                        <LogOut className="w-3 h-3 mr-1" />
+                        Uitloggen
+                      </p>
                     </div>
-                  </button>
-                </form>
+                  </div>
+                </Link>
               </div>
             </div>
             
