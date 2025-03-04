@@ -44,8 +44,19 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // Refresh the session
-  await supabase.auth.getSession();
+  // Refresh the session if expired
+  try {
+    const { data: refreshedSession, error } = await supabase.auth.refreshSession();
+    if (error) {
+      // Log the error but don't throw - we'll let the request continue
+      // This allows the user to be redirected to login if needed
+      console.error('Session refresh failed:', error);
+    } else {
+      console.log('Session refreshed successfully for user:', refreshedSession?.user?.email);
+    }
+  } catch (error) {
+    console.error('Unexpected error during session refresh:', error);
+  }
 
   return response;
 }
