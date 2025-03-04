@@ -6,7 +6,7 @@ import { getAdminEmails } from '../admin-config';
 
 // DEBUG MODE - Only enabled in development environment
 // This will bypass all authentication checks and allow access to the admin panel
-const DEBUG_MODE = true; // TEMPORARY: Enabled for production debugging
+const DEBUG_MODE = process.env.NODE_ENV === 'development';
 
 // List of admin email addresses that should always have access
 const ADMIN_EMAILS = [
