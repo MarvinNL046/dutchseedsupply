@@ -1,118 +1,104 @@
 #!/usr/bin/env node
+
 /**
  * Script to create the execute_sql function in Supabase
- * This function is required for the clean-database.js script to work
- * 
- * Usage:
- * 1. Make sure you have the .env.local file with the correct Supabase credentials
- * 2. Run: node scripts/create-execute-sql-function.js
+ * This function is needed for the apply-new-schema.js script to work
  */
 
 const { createClient } = require('@supabase/supabase-js');
-const fs = require('fs');
-const path = require('path');
-const dotenv = require('dotenv');
+require('dotenv').config({ path: '.env.local' });
 
-// Load environment variables from .env.local
-dotenv.config({ path: '.env.local' });
-
-// Validate environment variables
+// Check for required environment variables
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
 
 if (!supabaseUrl || !supabaseServiceKey) {
-  console.error('Error: Missing Supabase credentials in .env.local file');
-  console.error('Make sure NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_KEY are set');
+  console.error('Error: Missing required environment variables');
+  console.error('Make sure NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_KEY are set in .env.local');
   process.exit(1);
 }
 
-// Create Supabase client with admin privileges
-const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
-  }
-});
+// Create Supabase client with service key for admin access
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-// SQL to create the execute_sql function
-const createFunctionSql = `
--- Create a function to execute arbitrary SQL
-CREATE OR REPLACE FUNCTION execute_sql(sql_query TEXT)
-RETURNS VOID AS $$
-BEGIN
-  EXECUTE sql_query;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Grant execute permission to authenticated users
-GRANT EXECUTE ON FUNCTION execute_sql(TEXT) TO authenticated;
-
--- Grant execute permission to anon users (if needed)
-GRANT EXECUTE ON FUNCTION execute_sql(TEXT) TO anon;
-`;
-
-async function createFunction() {
-  console.log('Creating execute_sql function in Supabase...');
-  
+async function createExecuteSqlFunction() {
   try {
-    // Use the REST API to execute SQL directly
-    const response = await fetch(`${supabaseUrl}/rest/v1/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': supabaseServiceKey,
-        'Authorization': `Bearer ${supabaseServiceKey}`,
-        'Prefer': 'resolution=merge-duplicates'
-      },
-      body: JSON.stringify({
-        query: createFunctionSql
-      })
-    });
+    console.log('Creating execute_sql function in Supabase...');
     
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Failed to execute SQL: ${errorText}`);
-    }
+    // SQL to create the execute_sql function
+    const sql = `
+      CREATE OR REPLACE FUNCTION execute_sql(sql_query text)
+      RETURNS void AS $$
+      BEGIN
+        EXECUTE sql_query;
+      END;
+      $$ LANGUAGE plpgsql SECURITY DEFINER;
+    `;
     
-    console.log('✅ execute_sql function created successfully');
-    
-    // Verify the function works
-    console.log('Verifying function...');
-    const { data, error } = await supabase.rpc('execute_sql', {
-      sql_query: 'SELECT 1'
-    });
+    // Execute the SQL directly using a raw query
+    const { error } = await supabase.rpc('execute_sql', { sql_query: sql });
     
     if (error) {
-      throw new Error(`Function verification failed: ${error.message}`);
+      // If the function doesn't exist yet, we need to create it using a different method
+      if (error.message.includes('function execute_sql does not exist')) {
+        console.log('execute_sql function does not exist, creating it using a direct query...');
+        
+        // Try to create the function using a direct query
+        try {
+          // We need to use the PostgreSQL REST API to execute a raw SQL query
+          const { error: directError } = await supabase.from('_rpc').select('*').rpc('execute_sql', {
+            sql_query: sql
+          });
+          
+          if (directError) {
+            console.error('Error creating execute_sql function:', directError);
+            console.log('You will need to create the function manually in the Supabase SQL Editor:');
+            console.log(sql);
+            process.exit(1);
+          } else {
+            console.log('execute_sql function created successfully using direct query.');
+          }
+        } catch (directError) {
+          console.error('Error creating execute_sql function:', directError);
+          console.log('You will need to create the function manually in the Supabase SQL Editor:');
+          console.log(sql);
+          process.exit(1);
+        }
+      } else {
+        console.error('Error creating execute_sql function:', error);
+        console.log('You will need to create the function manually in the Supabase SQL Editor:');
+        console.log(sql);
+        process.exit(1);
+      }
+    } else {
+      console.log('execute_sql function created or updated successfully.');
     }
     
-    console.log('✅ Function verified and working correctly');
+    // Verify the function exists
+    try {
+      const { error: verifyError } = await supabase.rpc('execute_sql', { sql_query: 'SELECT 1;' });
+      
+      if (verifyError) {
+        console.error('Error verifying execute_sql function:', verifyError);
+        console.log('You may need to create the function manually in the Supabase SQL Editor:');
+        console.log(sql);
+      } else {
+        console.log('execute_sql function verified and working correctly.');
+      }
+    } catch (verifyError) {
+      console.error('Error verifying execute_sql function:', verifyError);
+      console.log('You may need to create the function manually in the Supabase SQL Editor:');
+      console.log(sql);
+    }
     
   } catch (error) {
-    console.error('Error creating function:', error.message);
-    
-    // Alternative approach using direct SQL API if available
-    console.log('Trying alternative approach...');
-    try {
-      const { data, error } = await supabase.from('_sql').select('*').execute(createFunctionSql);
-      
-      if (error) {
-        throw new Error(`Alternative approach failed: ${error.message}`);
-      }
-      
-      console.log('✅ execute_sql function created successfully using alternative approach');
-      
-    } catch (altError) {
-      console.error('Alternative approach failed:', altError.message);
-      console.log('\nPlease create the function manually using the Supabase dashboard:');
-      console.log('1. Go to your Supabase project dashboard');
-      console.log('2. Navigate to the SQL Editor');
-      console.log('3. Copy and paste the following SQL:');
-      console.log('\n' + createFunctionSql);
-      process.exit(1);
-    }
+    console.error('Unexpected error:', error);
+    process.exit(1);
   }
 }
 
 // Run the script
-createFunction();
+createExecuteSqlFunction().catch(error => {
+  console.error('Error in createExecuteSqlFunction:', error);
+  process.exit(1);
+});

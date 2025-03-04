@@ -1,103 +1,126 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { supabase } from '../../../../lib/supabase';
+import { useEffect, useState } from "react";
+import { supabase } from "../../../../lib/supabase";
 
 export default function AuthDebugPage() {
-  const [clientSession, setClientSession] = useState<any>(null);
-  const [clientUser, setClientUser] = useState<any>(null);
-  const [clientError, setClientError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [authChecks, setAuthChecks] = useState<string[]>([]);
 
   useEffect(() => {
     async function checkAuth() {
-      setIsLoading(true);
       try {
+        setLoading(true);
+        setAuthChecks([...authChecks, "Starting auth check"]);
+
         // Get session
-        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-        
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         if (sessionError) {
-          setClientError(`Session error: ${sessionError.message}`);
-          setIsLoading(false);
+          setError(`Session error: ${sessionError.message}`);
+          setAuthChecks([...authChecks, `Session error: ${sessionError.message}`]);
           return;
         }
-        
-        setClientSession(sessionData.session);
-        
-        // Get user
-        if (sessionData.session) {
-          const { data: userData, error: userError } = await supabase.auth.getUser();
-          
-          if (userError) {
-            setClientError(`User error: ${userError.message}`);
-            setIsLoading(false);
-            return;
-          }
-          
-          setClientUser(userData.user);
+
+        if (!session) {
+          setError("No session found. Please log in.");
+          setAuthChecks([...authChecks, "No session found"]);
+          return;
         }
-        
-        setIsLoading(false);
-      } catch (error) {
-        setClientError(`Unexpected error: ${error instanceof Error ? error.message : String(error)}`);
-        setIsLoading(false);
+
+        setAuthChecks([...authChecks, `Session found for user: ${session.user.email}`]);
+        setUser(session.user);
+
+        // Check if user is admin
+        const { data: userData, error: userError } = await supabase
+          .from("users")
+          .select("is_admin")
+          .eq("id", session.user.id)
+          .single();
+
+        if (userError) {
+          setError(`User data error: ${userError.message}`);
+          setAuthChecks([...authChecks, `User data error: ${userError.message}`]);
+          return;
+        }
+
+        setIsAdmin(userData?.is_admin || false);
+        setAuthChecks([...authChecks, `Admin status: ${userData?.is_admin ? "Yes" : "No"}`]);
+
+        // Test is_admin function
+        const { data: functionData, error: functionError } = await supabase
+          .rpc("is_admin", { uid: session.user.id });
+
+        if (functionError) {
+          setError(`is_admin function error: ${functionError.message}`);
+          setAuthChecks([...authChecks, `is_admin function error: ${functionError.message}`]);
+          return;
+        }
+
+        setAuthChecks([...authChecks, `is_admin function result: ${functionData ? "Yes" : "No"}`]);
+
+        // Check RLS policies
+        const { data: policiesData, error: policiesError } = await supabase
+          .from("users")
+          .select("*")
+          .limit(1);
+
+        if (policiesError) {
+          setError(`RLS policy error: ${policiesError.message}`);
+          setAuthChecks([...authChecks, `RLS policy error: ${policiesError.message}`]);
+          return;
+        }
+
+        setAuthChecks([...authChecks, "RLS policies check passed"]);
+
+      } catch (e: any) {
+        setError(`Unexpected error: ${e.message}`);
+        setAuthChecks([...authChecks, `Unexpected error: ${e.message}`]);
+      } finally {
+        setLoading(false);
       }
     }
-    
+
     checkAuth();
   }, []);
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-md">
-      <h1 className="text-2xl font-bold mb-6">Authentication Debug Page</h1>
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Auth Debug Page</h1>
       
-      {isLoading ? (
-        <div className="flex justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      {loading ? (
+        <p>Loading...</p>
+      ) : error ? (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <p><strong>Error:</strong> {error}</p>
         </div>
       ) : (
-        <div className="space-y-6">
-          {clientError && (
-            <div className="p-4 bg-red-100 text-red-700 rounded-md">
-              <h2 className="font-bold">Error:</h2>
-              <p>{clientError}</p>
-            </div>
-          )}
-          
-          <div>
-            <h2 className="text-xl font-semibold mb-2">Client-side Session:</h2>
-            <pre className="bg-gray-100 p-4 rounded-md overflow-auto max-h-60">
-              {clientSession ? JSON.stringify(clientSession, null, 2) : 'No session found'}
-            </pre>
+        <div>
+          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+            <p>Authentication successful!</p>
           </div>
           
-          <div>
-            <h2 className="text-xl font-semibold mb-2">Client-side User:</h2>
-            <pre className="bg-gray-100 p-4 rounded-md overflow-auto max-h-60">
-              {clientUser ? JSON.stringify(clientUser, null, 2) : 'No user found'}
-            </pre>
-          </div>
-          
-          <div className="flex space-x-4">
-            <button
-              onClick={async () => {
-                await supabase.auth.signOut();
-                window.location.href = '/';
-              }}
-              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-            >
-              Sign Out
-            </button>
-            
-            <button
-              onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-            >
-              Refresh
-            </button>
+          <div className="mb-4">
+            <h2 className="text-xl font-semibold mb-2">User Information</h2>
+            <p><strong>Email:</strong> {user?.email}</p>
+            <p><strong>ID:</strong> {user?.id}</p>
+            <p><strong>Is Admin:</strong> {isAdmin ? "Yes" : "No"}</p>
           </div>
         </div>
       )}
+      
+      <div className="mt-8">
+        <h2 className="text-xl font-semibold mb-2">Auth Check Log</h2>
+        <div className="bg-gray-100 p-4 rounded">
+          <ul className="list-disc pl-5">
+            {authChecks.map((check, index) => (
+              <li key={index}>{check}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
     </div>
   );
 }

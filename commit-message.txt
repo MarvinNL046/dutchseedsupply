@@ -1,0 +1,26 @@
+Fix Supabase admin authentication and database setup
+
+This commit includes:
+
+1. New database schema setup:
+   - Created new-schema.sql with all tables and RLS policies
+   - Added apply-new-schema.js script to apply the schema
+   - Created create-execute-sql-function.js to set up required SQL function
+   - Added setup-new-database.js to run all scripts in the correct order
+
+2. Admin authentication improvements:
+   - Added make-admin.js script to set admin privileges for users
+   - Fixed admin authentication in middleware.ts
+   - Improved admin dashboard access control
+
+3. Code cleanup:
+   - Added cleanup-old-files.js to backup and remove old SQL files
+   - Moved old middleware files to backup directory
+   - Added documentation in docs/new-database-setup.md
+
+4. Documentation:
+   - Added comprehensive guide for setting up the new database
+   - Updated README.md with database setup instructions
+   - Added troubleshooting information
+
+These changes provide a more robust and maintainable database setup with proper Row Level Security (RLS) policies and admin authentication.
