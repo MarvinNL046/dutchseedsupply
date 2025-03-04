@@ -3,7 +3,6 @@ import '../styles/globals.css';
 import { getServerSideConfig } from '../lib/site-config-server';
 import { Metadata } from 'next';
 import { SiteConfigProvider } from '../lib/site-config-context';
-import { AuthProvider } from '../lib/auth-context';
 
 // Force dynamic rendering for this layout
 export const dynamic = 'force-dynamic';
@@ -57,9 +56,7 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <SiteConfigProvider>
-          <AuthProvider>
-            {children}
-          </AuthProvider>
+          {children}
         </SiteConfigProvider>
       </body>
     </html>
