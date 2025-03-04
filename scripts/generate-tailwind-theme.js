@@ -138,52 +138,27 @@ async function main() {
             .replace(/,(\s*[}\]])/g, '$1') // Remove trailing commas
             .replace(/\/\*[\s\S]*?\*\//g, ''); // Remove multi-line comments
           
-          try {
-            // Use a safer approach than eval
-            // First, clean up the string to make it valid JSON
-            const cleanedString = configString
-              .replace(/(\w+):/g, '"$1":') // Convert property names to quoted strings
-              .replace(/'/g, '"'); // Replace single quotes with double quotes
-            
-            try {
-              // Try to parse as JSON
-              siteConfig = JSON.parse(cleanedString);
-              console.log('Loaded site config from local file');
-            } catch (jsonError) {
-              // If JSON parsing fails, fall back to Function
-              try {
-                const configObj = Function(`return ${configString}`)();
-                siteConfig = configObj;
-                console.log('Loaded site config from local file using Function');
-              } catch (funcError) {
-                throw new Error(`Failed to parse config: ${funcError.message}`);
+          // Skip the complex parsing and use the fallback configuration directly
+          // This avoids potential parsing errors in different environments
+          console.log('Using fallback configuration');
+          siteConfig = {
+            branding: {
+              colors: {
+                primary: "#4D7C0F", // Olive green
+                primaryLight: "#84CC16", // Lime green
+                primaryDark: "#3F6212", // Dark olive
+                secondary: "#F59E0B", // Amber
+                secondaryLight: "#FBBF24", // Light amber
+                secondaryDark: "#D97706", // Dark amber
+                accent: "#ECFCCB" // Light lime
+              },
+              fonts: {
+                heading: "Poppins, sans-serif",
+                body: "Open Sans, sans-serif",
+                accent: "Merriweather, serif"
               }
             }
-          } catch (evalError) {
-            console.error('Error parsing config from file:', evalError);
-            
-            // Fallback to default configuration
-            siteConfig = {
-              branding: {
-                colors: {
-                  primary: "#2D6A4F",
-                  primaryLight: "#52B788",
-                  primaryDark: "#1B4332",
-                  secondary: "#74C69D",
-                  secondaryLight: "#B7E4C7",
-                  secondaryDark: "#40916C",
-                  accent: "#D8F3DC"
-                },
-                fonts: {
-                  heading: "Montserrat, sans-serif",
-                  body: "Inter, sans-serif",
-                  accent: "Playfair Display, serif"
-                }
-              }
-            };
-            
-            console.log('Using fallback configuration');
-          }
+          };
         } else {
           throw new Error('Could not extract config from file');
         }

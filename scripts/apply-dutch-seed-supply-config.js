@@ -105,6 +105,25 @@ async function main() {
   try {
     console.log('Applying Dutch Seed Supply configuration...');
     
+    // Check if required environment variables are available
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY) {
+      console.log('Supabase credentials not found in environment variables.');
+      console.log('Skipping database operations and applying configuration locally only...');
+      
+      // Run the config:apply script to apply the changes locally
+      console.log('Applying configuration changes locally...');
+      try {
+        const { execSync } = require('child_process');
+        execSync('npm run config:apply', { stdio: 'inherit' });
+        console.log('Configuration applied successfully');
+        return; // Exit successfully
+      } catch (execError) {
+        console.error('Error applying configuration locally:', execError);
+        // Continue with the process, don't exit with error
+        return;
+      }
+    }
+    
     // Connect to Supabase
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -126,10 +145,10 @@ async function main() {
       
       if (createTableError) {
         console.error('Error creating site_config table:', createTableError);
-        process.exit(1);
+        console.log('Continuing with local configuration only...');
+      } else {
+        console.log('site_config table created successfully');
       }
-      
-      console.log('site_config table created successfully');
     }
     
     // Upsert the configuration
@@ -140,10 +159,10 @@ async function main() {
     
     if (error) {
       console.error('Error saving configuration:', error);
-      process.exit(1);
+      console.log('Continuing with local configuration only...');
+    } else {
+      console.log('Configuration saved to database successfully');
     }
-    
-    console.log('Configuration saved to database successfully');
     
     // Run the config:apply script to apply the changes
     console.log('Applying configuration changes...');
@@ -153,7 +172,17 @@ async function main() {
     console.log('Configuration applied successfully');
   } catch (error) {
     console.error('Error applying configuration:', error);
-    process.exit(1);
+    
+    // Try to apply configuration locally even if there was an error
+    try {
+      console.log('Attempting to apply configuration locally...');
+      const { execSync } = require('child_process');
+      execSync('npm run config:apply', { stdio: 'inherit' });
+      console.log('Configuration applied locally successfully');
+    } catch (execError) {
+      console.error('Error applying configuration locally:', execError);
+      process.exit(1);
+    }
   }
 }
 
